@@ -1,0 +1,15 @@
+"""Download the pinned Parakeet English speech model for local development."""
+import json
+from prepare_windows import fetch, safe_extract, ROOT, CACHE
+
+ASSET = {
+    "name": "sherpa-onnx-nemo-parakeet_tdt_transducer_110m-en-36000-int8.tar.bz2",
+    "url": "https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-nemo-parakeet_tdt_transducer_110m-en-36000-int8.tar.bz2",
+    "sha256": "f628312e9fdf8686374cb01a69425c41732529d540860311f16f37cbc32cfe9b",
+}
+
+if __name__ == "__main__":
+    archive = fetch(ASSET["url"], CACHE / ASSET["name"], ASSET["sha256"])
+    safe_extract(archive, ROOT / "models")
+    (ROOT / "speech-dependencies.lock.json").write_text(json.dumps({"assets": [ASSET]}, indent=2) + "\n", encoding="utf-8")
+    print("Speech model ready. No network is needed by the app.")

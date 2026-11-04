@@ -1,0 +1,31 @@
+{
+  "sherpa": "1.12.17",
+  "gradle": "8.14.3",
+  "assets": [
+    {
+      "name": "sherpa-onnx-v1.12.17-win-x64-jni.tar.bz2",
+      "url": "https://github.com/k2-fsa/sherpa-onnx/releases/download/v1.12.17/sherpa-onnx-v1.12.17-win-x64-jni.tar.bz2",
+      "sha256": "8f52acfbc6c47e579bebbc9052c6fe514b5e572da9876ff83fb48415e91dd1ef"
+    },
+    {
+      "name": "sherpa-onnx-moonshine-tiny-en-int8.tar.bz2",
+      "url": "https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-moonshine-tiny-en-int8.tar.bz2",
+      "sha256": "d5fe6ec4334fef36255b2a4010412cad4c007e33103fec62fb5d17cad88086f2"
+    },
+    {
+      "name": "silero_vad.onnx",
+      "url": "https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/silero_vad.onnx",
+      "sha256": "9e2449e1087496d8d4caba907f23e0bd3f78d91fa552479bb9c23ac09cbb1fd6"
+    },
+    {
+      "name": "gradle-8.14.3-bin.zip",
+      "url": "https://services.gradle.org/distributions/gradle-8.14.3-bin.zip",
+      "sha256": "bd71102213493060956ec229d946beee57158dbd89d0e62b91bca0fa2c5f3531"
+    },
+    {
+      "name": "sherpa-onnx-v1.12.17.jar",
+      "url": "https://github.com/k2-fsa/sherpa-onnx/releases/download/v1.12.17/sherpa-onnx-v1.12.17.jar",
+      "sha256": "9f5c07962ed186ece657c01bffc38fb7215fe65e39f47155bf36147d4957aa5c"
+    }
+  ]
+}

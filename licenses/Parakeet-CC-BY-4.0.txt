@@ -1,0 +1,11 @@
+Parakeet TDT-CTC 110M (English speech recognition)
+
+Source model: nvidia/parakeet-tdt_ctc-110m, by NVIDIA
+  https://huggingface.co/nvidia/parakeet-tdt_ctc-110m
+License: Creative Commons Attribution 4.0 International (CC BY 4.0)
+  https://creativecommons.org/licenses/by/4.0/legalcode
+
+Changes: OpenSub uses the ONNX int8 export published by the sherpa-onnx project
+(sherpa-onnx-nemo-parakeet_tdt_transducer_110m-en-36000-int8,
+https://github.com/k2-fsa/sherpa-onnx/releases/tag/asr-models). The model was converted
+to ONNX and quantized to int8; it was not retrained. NVIDIA does not endorse OpenSub.

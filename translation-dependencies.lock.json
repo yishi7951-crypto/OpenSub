@@ -1,0 +1,67 @@
+{
+  "revision": "046f55aec303cdee3e0318604406d4df20f1e8ea",
+  "firefoxRevision": "551f0f6385f77d7d73082991c3b4c9af2dd7eed7",
+  "assets": [
+    {
+      "path": "onnx/encoder_model_quantized.onnx",
+      "url": "https://huggingface.co/Xenova/opus-mt-en-zh/resolve/046f55aec303cdee3e0318604406d4df20f1e8ea/onnx/encoder_model_quantized.onnx",
+      "sha256": "d3b7912bf6a9bd27e4c074c2df91d4ff3d5b4bc5f7f6c8d7cc9c805c98fbafee"
+    },
+    {
+      "path": "onnx/decoder_model_merged_quantized.onnx",
+      "url": "https://huggingface.co/Xenova/opus-mt-en-zh/resolve/046f55aec303cdee3e0318604406d4df20f1e8ea/onnx/decoder_model_merged_quantized.onnx",
+      "sha256": "023be4f841f4c47cd65fffcbaa81c0d99d7f7e0138f7ba0e03fa220a4e688aff"
+    },
+    {
+      "path": "source.spm",
+      "url": "https://huggingface.co/Xenova/opus-mt-en-zh/resolve/046f55aec303cdee3e0318604406d4df20f1e8ea/source.spm",
+      "sha256": "5775ddc9e3ff2fae91554da56468ad35ff56edaba870fea74447bc7234bfdaa8"
+    },
+    {
+      "path": "vocab.json",
+      "url": "https://huggingface.co/Xenova/opus-mt-en-zh/resolve/046f55aec303cdee3e0318604406d4df20f1e8ea/vocab.json",
+      "sha256": "22c957348eed495ee925afc40a36da3e387c8a34a734c8486967c2dca271613e"
+    },
+    {
+      "path": "en-zh/encoder_model.int8.onnx",
+      "url": "https://huggingface.co/marcosremar2/firefox-translations-ucast-onnx/resolve/551f0f6385f77d7d73082991c3b4c9af2dd7eed7/en-zh/encoder_model.int8.onnx",
+      "sha256": "c17126cff9aef1d316b780f0beb5f8d45ac79aced0e4ce99e112e286619b2a0d"
+    },
+    {
+      "path": "en-zh/decoder_model_merged.int8.onnx",
+      "url": "https://huggingface.co/marcosremar2/firefox-translations-ucast-onnx/resolve/551f0f6385f77d7d73082991c3b4c9af2dd7eed7/en-zh/decoder_model_merged.int8.onnx",
+      "sha256": "2ef23c23e52739d009334af2678225b0908332619345f2ceeed75728e86abbf8"
+    },
+    {
+      "path": "en-zh/source.spm",
+      "url": "https://huggingface.co/marcosremar2/firefox-translations-ucast-onnx/resolve/551f0f6385f77d7d73082991c3b4c9af2dd7eed7/en-zh/source.spm",
+      "sha256": "bd9b65504acc6d9726dd281f7defc2adb7c2c22d0688fe2f84697de25197c8c5"
+    },
+    {
+      "path": "en-zh/vocab.json",
+      "url": "https://huggingface.co/marcosremar2/firefox-translations-ucast-onnx/resolve/551f0f6385f77d7d73082991c3b4c9af2dd7eed7/en-zh/vocab.json",
+      "sha256": "4ac4dc481c69876a816048496953b6c01e6d38fcd6da22f42e68543f08344b6c"
+    },
+    {
+      "path": "en-zh/target_vocab.json",
+      "url": "https://huggingface.co/marcosremar2/firefox-translations-ucast-onnx/resolve/551f0f6385f77d7d73082991c3b4c9af2dd7eed7/en-zh/target_vocab.json",
+      "sha256": "2e10b4b9a75e8955465cb8d9fe5d8d5ce2b49b99268a9dba85c60c321e385735"
+    },
+    {
+      "path": "LICENSE",
+      "url": "https://huggingface.co/marcosremar2/firefox-translations-ucast-onnx/resolve/551f0f6385f77d7d73082991c3b4c9af2dd7eed7/LICENSE",
+      "sha256": "3f3d9e0024b1921b067d6f7f88deb4a60cbe7a78e76c64e3f1d7fc3b779b9d04"
+    },
+    {
+      "path": "Hy-MT2-1.8B-1.25Bit.gguf",
+      "url": "https://huggingface.co/tencent/Hy-MT2-1.8B-1.25Bit-GGUF/resolve/9df5c824a00a744fb0512a29c640466f4d97dfb0/Hy-MT2-1.8B-1.25Bit.gguf",
+      "sha256": "cc497fe8f033b52b3b8b00a7669e9661435432f9d4cd43f7ed24400c01507a93"
+    },
+    {
+      "path": "LICENSE.txt",
+      "url": "https://huggingface.co/tencent/Hy-MT2-1.8B-1.25Bit-GGUF/resolve/9df5c824a00a744fb0512a29c640466f4d97dfb0/LICENSE.txt",
+      "sha256": "75501487ca937793e0107d5c495ab1632d247f0df481ab6a383ae1ad0ee3b5d7"
+    }
+  ],
+  "hyRevision": "9df5c824a00a744fb0512a29c640466f4d97dfb0"
+}

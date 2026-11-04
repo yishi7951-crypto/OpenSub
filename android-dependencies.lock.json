@@ -1,0 +1,10 @@
+{
+  "sherpa": "1.12.17",
+  "assets": [
+    {
+      "name": "sherpa-onnx-1.12.17.aar",
+      "url": "https://github.com/k2-fsa/sherpa-onnx/releases/download/v1.12.17/sherpa-onnx-1.12.17.aar",
+      "sha256": "96853e39b5b93f90c7d161cace8eb0898339c7dd6017c9f92975cb330e9d66fd"
+    }
+  ]
+}

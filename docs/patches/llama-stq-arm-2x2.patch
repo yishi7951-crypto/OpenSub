@@ -1,0 +1,193 @@
+diff --git a/ggml/src/ggml-cpu/arch/arm/quants.c b/ggml/src/ggml-cpu/arch/arm/quants.c
+index d498757..eac94b7 100644
+--- a/ggml/src/ggml-cpu/arch/arm/quants.c
++++ b/ggml/src/ggml-cpu/arch/arm/quants.c
+@@ -1571,18 +1571,66 @@ void ggml_vec_dot_tq1_0_q8_K(int n, float * GGML_RESTRICT s, size_t bs, const vo
+ #endif
+ }
+ 
++#if defined(__ARM_FEATURE_DOTPROD)
++// Two weight rows by two activation rows, for prompts: each 16 bytes of weights is unpacked once for both tokens.
++// s[c*bs + r] is row r by column c, as ggml_compute_forward_mul_mat_one_chunk reads it.
++static void tq2_0_dot_2x2(int nb, float * GGML_RESTRICT s, size_t bs, const block_tq2_0 * GGML_RESTRICT x0, const block_tq2_0 * GGML_RESTRICT x1,
++        const block_q8_K * GGML_RESTRICT y0, const block_q8_K * GGML_RESTRICT y1) {
++    const uint8x16_t m3 = vdupq_n_u8(3);
++    float sum00 = 0.0f, sum01 = 0.0f, sum10 = 0.0f, sum11 = 0.0f;
++    for (int i = 0; i < nb; ++i) {
++        int32x4_t a00 = vdupq_n_s32(0), a01 = vdupq_n_s32(0), a10 = vdupq_n_s32(0), a11 = vdupq_n_s32(0);
++        for (int j = 0; j < 64; j += 16) {
++            // Bytes j..j+15 of a row hold four weights each, for y at j*4 + {0, 32, 64, 96} within its half.
++            const uint8x16_t p0 = vld1q_u8(x0[i].qs + j);
++            const uint8x16_t p1 = vld1q_u8(x1[i].qs + j);
++            const int8_t * q0 = y0[i].qs + (j / 32) * 128 + (j % 32);
++            const int8_t * q1 = y1[i].qs + (j / 32) * 128 + (j % 32);
++            for (int k = 0; k < 4; ++k) {
++                const int8x16_t w0 = vreinterpretq_s8_u8(vandq_u8(vshlq_u8(p0, vdupq_n_s8(-2 * k)), m3));
++                const int8x16_t w1 = vreinterpretq_s8_u8(vandq_u8(vshlq_u8(p1, vdupq_n_s8(-2 * k)), m3));
++                const int8x16_t v0 = vld1q_s8(q0 + 32 * k);
++                const int8x16_t v1 = vld1q_s8(q1 + 32 * k);
++                a00 = vdotq_s32(a00, w0, v0);
++                a01 = vdotq_s32(a01, w0, v1);
++                a10 = vdotq_s32(a10, w1, v0);
++                a11 = vdotq_s32(a11, w1, v1);
++            }
++        }
++        const int32_t t0 = vaddvq_s32(vpaddlq_s16(vaddq_s16(vld1q_s16(y0[i].bsums), vld1q_s16(y0[i].bsums + 8))));
++        const int32_t t1 = vaddvq_s32(vpaddlq_s16(vaddq_s16(vld1q_s16(y1[i].bsums), vld1q_s16(y1[i].bsums + 8))));
++        const float d0 = GGML_CPU_FP16_TO_FP32(x0[i].d);
++        const float d1 = GGML_CPU_FP16_TO_FP32(x1[i].d);
++        sum00 += d0 * y0[i].d * (float) (vaddvq_s32(a00) - t0);
++        sum01 += d0 * y1[i].d * (float) (vaddvq_s32(a01) - t1);
++        sum10 += d1 * y0[i].d * (float) (vaddvq_s32(a10) - t0);
++        sum11 += d1 * y1[i].d * (float) (vaddvq_s32(a11) - t1);
++    }
++    s[0]      = sum00;
++    s[1]      = sum10;
++    s[bs]     = sum01;
++    s[bs + 1] = sum11;
++}
++#endif
++
+ void ggml_vec_dot_tq2_0_q8_K(int n, float * GGML_RESTRICT s, size_t bs, const void * GGML_RESTRICT vx, size_t bx, const void * GGML_RESTRICT vy, size_t by, int nrc) {
++    const block_tq2_0 * GGML_RESTRICT x = vx;
++    const block_q8_K  * GGML_RESTRICT y = vy;
++
++    const int nb = n / QK_K;
++
++#if defined(__ARM_FEATURE_DOTPROD)
++    if (nrc == 2) {
++        tq2_0_dot_2x2(nb, s, bs, x, (const block_tq2_0 *)((const char *) vx + bx), y, (const block_q8_K *)((const char *) vy + by));
++        return;
++    }
++#endif
+     assert(nrc == 1);
+     UNUSED(nrc);
+     UNUSED(bx);
+     UNUSED(by);
+     UNUSED(bs);
+ 
+-    const block_tq2_0 * GGML_RESTRICT x = vx;
+-    const block_q8_K  * GGML_RESTRICT y = vy;
+-
+-    const int nb = n / QK_K;
+-
+ #if defined(__ARM_NEON)
+     float sumf = 0.0f;
+ 
+@@ -1682,18 +1730,85 @@ void ggml_vec_dot_tq2_0_q8_K(int n, float * GGML_RESTRICT s, size_t bs, const vo
+ #endif
+ }
+ 
++#if defined(__ARM_FEATURE_DOTPROD)
++// 32 codes (16 bytes of qs, 4 of sign) as the 8 lane planes of ggml_vec_dot_stq1_0_q8_K below, values 0..2: the -1 comes from bsums.
++static inline void stq1_0_decode_half(const uint8_t * GGML_RESTRICT qs, const uint8_t * GGML_RESTRICT sign, const uint8x16x2_t codebook2, int8x16_t out[8]) {
++    const uint8x16_t m3      = vdupq_n_u8(3);
++    const uint8x16_t packed  = vld1q_u8(qs);
++    const uint8x16_t lo      = vandq_u8(packed, vdupq_n_u8(0x0F));
++    const uint8x16_t hi      = vshrq_n_u8(packed, 4);
++    const uint8_t * sign_lut = (const uint8_t *)(const void *) table_b2b_0;
++    const uint8x16_t s0 = vcombine_u8(vld1_u8(sign_lut + 8*sign[0]), vld1_u8(sign_lut + 8*sign[1]));
++    const uint8x16_t s1 = vcombine_u8(vld1_u8(sign_lut + 8*sign[2]), vld1_u8(sign_lut + 8*sign[3]));
++    const uint8x16_t sel_0 = vqtbl2q_u8(codebook2, vorrq_u8(vzip1q_u8(lo, hi), s0));
++    const uint8x16_t sel_1 = vqtbl2q_u8(codebook2, vorrq_u8(vzip2q_u8(lo, hi), s1));
++    out[0] = vreinterpretq_s8_u8(vandq_u8(sel_0, m3));
++    out[1] = vreinterpretq_s8_u8(vandq_u8(vshrq_n_u8(sel_0, 2), m3));
++    out[2] = vreinterpretq_s8_u8(vandq_u8(vshrq_n_u8(sel_0, 4), m3));
++    out[3] = vreinterpretq_s8_u8(vshrq_n_u8(sel_0, 6));
++    out[4] = vreinterpretq_s8_u8(vandq_u8(sel_1, m3));
++    out[5] = vreinterpretq_s8_u8(vandq_u8(vshrq_n_u8(sel_1, 2), m3));
++    out[6] = vreinterpretq_s8_u8(vandq_u8(vshrq_n_u8(sel_1, 4), m3));
++    out[7] = vreinterpretq_s8_u8(vshrq_n_u8(sel_1, 6));
++}
++
++// Two weight rows by two activation rows, for prompts: each row's codes are decoded once for both, where one at a time
++// decodes them again for every token. s[c*bs + r] is row r by column c, as ggml_compute_forward_mul_mat_one_chunk reads it.
++static void stq1_0_dot_2x2(int nb, float * GGML_RESTRICT s, size_t bs, const block_stq1_0 * GGML_RESTRICT x0, const block_stq1_0 * GGML_RESTRICT x1,
++        const block_q8_K * GGML_RESTRICT y0, const block_q8_K * GGML_RESTRICT y1) {
++    const uint8x16x2_t codebook2 = { { vld1q_u8(stq1_0_codebook), vld1q_u8(stq1_0_codebook + 16) } };
++    float sum00 = 0.0f, sum01 = 0.0f, sum10 = 0.0f, sum11 = 0.0f;
++    for (int i = 0; i < nb; ++i) {
++        int32x4_t a00 = vdupq_n_s32(0), a01 = vdupq_n_s32(0), a10 = vdupq_n_s32(0), a11 = vdupq_n_s32(0);
++        for (int h = 0; h < 2; ++h) {
++            int8x16_t q0[8], q1[8];
++            stq1_0_decode_half(x0[i].qs + 16*h, x0[i].sign + 4*h, codebook2, q0);
++            stq1_0_decode_half(x1[i].qs + 16*h, x1[i].sign + 4*h, codebook2, q1);
++            const int8_t * p0 = y0[i].qs + 128*h;
++            const int8_t * p1 = y1[i].qs + 128*h;
++            for (int k = 0; k < 8; ++k) {
++                const int8x16_t v0 = vld1q_s8(p0 + 16*k);
++                const int8x16_t v1 = vld1q_s8(p1 + 16*k);
++                a00 = vdotq_s32(a00, q0[k], v0);
++                a01 = vdotq_s32(a01, q0[k], v1);
++                a10 = vdotq_s32(a10, q1[k], v0);
++                a11 = vdotq_s32(a11, q1[k], v1);
++            }
++        }
++        const int32_t t0 = vaddvq_s32(vpaddlq_s16(vaddq_s16(vld1q_s16(y0[i].bsums), vld1q_s16(y0[i].bsums + 8))));
++        const int32_t t1 = vaddvq_s32(vpaddlq_s16(vaddq_s16(vld1q_s16(y1[i].bsums), vld1q_s16(y1[i].bsums + 8))));
++        const float d0 = GGML_CPU_FP16_TO_FP32(x0[i].d);
++        const float d1 = GGML_CPU_FP16_TO_FP32(x1[i].d);
++        sum00 += d0 * y0[i].d * (float) (vaddvq_s32(a00) - t0);
++        sum01 += d0 * y1[i].d * (float) (vaddvq_s32(a01) - t1);
++        sum10 += d1 * y0[i].d * (float) (vaddvq_s32(a10) - t0);
++        sum11 += d1 * y1[i].d * (float) (vaddvq_s32(a11) - t1);
++    }
++    s[0]      = sum00;
++    s[1]      = sum10;
++    s[bs]     = sum01;
++    s[bs + 1] = sum11;
++}
++#endif
++
+ void ggml_vec_dot_stq1_0_q8_K(int n, float * GGML_RESTRICT s, size_t bs, const void * GGML_RESTRICT vx, size_t bx, const void * GGML_RESTRICT vy, size_t by, int nrc) {
++    const block_stq1_0 * GGML_RESTRICT x = vx;
++    const block_q8_K  * GGML_RESTRICT y = vy;
++
++    const int nb = n / QK_K;
++
++#if defined(__ARM_FEATURE_DOTPROD)
++    if (nrc == 2) {
++        stq1_0_dot_2x2(nb, s, bs, x, (const block_stq1_0 *)((const char *) vx + bx), y, (const block_q8_K *)((const char *) vy + by));
++        return;
++    }
++#endif
+     assert(nrc == 1);
+     UNUSED(nrc);
+     UNUSED(bx);
+     UNUSED(by);
+     UNUSED(bs);
+ 
+-    const block_stq1_0 * GGML_RESTRICT x = vx;
+-    const block_q8_K  * GGML_RESTRICT y = vy;
+-
+-    const int nb = n / QK_K;
+-
+ #if defined(__ARM_NEON)
+     float sumf = 0.0f;
+ 
+diff --git a/ggml/src/ggml-cpu/ggml-cpu.c b/ggml/src/ggml-cpu/ggml-cpu.c
+index a49fd62..d8ffda0 100644
+--- a/ggml/src/ggml-cpu/ggml-cpu.c
++++ b/ggml/src/ggml-cpu/ggml-cpu.c
+@@ -407,13 +407,21 @@ static const struct ggml_type_traits_cpu type_traits_cpu[GGML_TYPE_COUNT] = {
+         .from_float               = quantize_row_tq2_0,
+         .vec_dot                  = ggml_vec_dot_tq2_0_q8_K,
+         .vec_dot_type             = GGML_TYPE_Q8_K,
++#if defined(__ARM_FEATURE_DOTPROD)
++        .nrows                    = 2,
++#else
+         .nrows                    = 1,
++#endif
+     },
+     [GGML_TYPE_STQ1_0] = {
+         .from_float               = quantize_row_stq1_0,
+         .vec_dot                  = ggml_vec_dot_stq1_0_q8_K,
+         .vec_dot_type             = GGML_TYPE_Q8_K,
++#if defined(__ARM_FEATURE_DOTPROD)
++        .nrows                    = 2,
++#else
+         .nrows                    = 1,
++#endif
+     },
+     [GGML_TYPE_I32] = {
+         .from_float               = (ggml_from_float_t) ggml_cpu_fp32_to_i32,

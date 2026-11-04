@@ -1,0 +1,11 @@
+Hy-MT2-1.8B-1.25Bit-GGUF (English-to-Chinese translation)
+
+Tencent is pleased to support the open-source community by making Hy-MT2-1.8B-1.25Bit-GGUF available.
+Copyright (C) 2026 Tencent. All rights reserved.
+Hy-MT2-1.8B-1.25Bit-GGUF is licensed under the Apache License, Version 2.0 (see Apache-2.0.txt).
+Source: https://huggingface.co/tencent/Hy-MT2-1.8B-1.25Bit-GGUF
+
+Changes made by OpenSub:
+- Windows: the tensor type number 42 in the GGUF file was changed to 43, the number llama.cpp uses.
+- Android: the same model rewritten in the TQ2_0 format by scripts/stq_to_tq2.py.
+  Weights and scales are bit-for-bit unchanged; only their storage layout differs.

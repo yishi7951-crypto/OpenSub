@@ -1,0 +1,54 @@
+# clip<TAB>what must survive translation<TAB>the final Chinese must match<TAB>and must not match
+churchill_quiet	disaster	灾难
+churchill_quiet	20,000	两万|二万|20,?000
+churchill_quiet	30,000	三万|30,?000
+churchill_quiet	French First Army	法国第一军|法军第一
+churchill_quiet	British force	英国远征军
+churchill_quiet	surrender	投降
+churchill_quiet	food	食物|粮食
+churchill_quiet	ammunition	弹药
+churchill_quiet	tidings are news	消息
+churchill_quiet	re-embarked, not recruited	船|撤|重新	招募
+kennedy_b	two months	两个月
+kennedy_b	fifty years	五十年|50年
+kennedy_b	steam engine	蒸汽机
+kennedy_b	Newton	牛顿
+kennedy_b	gravity	重力|引力
+kennedy_b	last month	上个月
+kennedy_b	electric lights	电灯
+kennedy_b	telephones	电话
+kennedy_b	automobiles	汽车
+kennedy_b	airplanes	飞机
+kennedy_b	last week	上周
+kennedy_b	penicillin	青霉素
+kennedy_b	television	电视
+kennedy_b	nuclear	核
+kennedy_b	Venus	金星
+kennedy_b	midnight	午夜
+kennedy_b	ignorance	无知
+kennedy_b	high costs	成本|代价
+kennedy_b	high reward	回报
+kennedy_b	Houston	休斯[顿敦]
+kennedy_b	Texas	德克萨斯|得克萨斯
+kennedy_b	not built by those who waited	(不是|并非|绝非|不).{0,16}(等待|休息)
+kennedy_b	new ills are not good	(弊|问题|病|烦恼|麻烦|隐患)	乐趣
+kennedy_c	no conscience	(没有|无).{0,6}(良知|良心)
+kennedy_c	good or ill	善|好.{0,6}(恶|坏)
+kennedy_c	sea of peace	和平
+kennedy_c	theater of war	战争|战场
+kennedy_c	I do not say	(不|并非).{0,6}(说|认为|主张)
+kennedy_c	hostile misuse	敌对|恶意
+kennedy_c	land or sea	陆地|海洋
+kennedy_c	fires of war	战火|战争
+kennedy_c	no strife	没有.{0,8}(冲突|纷争|争斗|争端|斗争)
+kennedy_c	outer space	外太空|太空
+kennedy_c	moon	月球|月亮
+kennedy_c	thirty-five years	三十五年|35年
+kennedy_c	Atlantic	大西洋
+kennedy_c	Rice	莱斯|赖斯
+kennedy_c	this decade	十年
+kennedy_c	not because easy	不是因为|并非因为
+kennedy_c	but because hard	(而是|但|却).{0,8}因为
+kennedy_c	hard	难
+kennedy_c	goal	目标
+kennedy_c	skills	技能|技术|技巧
